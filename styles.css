@@ -14,60 +14,36 @@ body {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 400px;
 }
 
-#score {
-    font-size: 1.2em;
-    margin-bottom: 20px;
-}
-
-#hangman {
-    margin: 20px 0;
-}
-
-#word-display {
-    font-size: 2em;
-    margin: 20px 0;
-    letter-spacing: 10px;
-}
-
-#letters {
-    margin: 20px 0;
-}
-
-.letter-button {
-    font-size: 1.2em;
+#search-input {
+    width: 100%;
     padding: 10px;
-    margin: 5px;
-    cursor: pointer;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-}
-
-.letter-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-#message {
-    font-size: 1.5em;
-    margin: 20px 0;
-}
-
-#translation {
-    font-size: 1.2em;
-    margin: 20px 0;
-    color: #555;
-}
-
-#reset-button {
-    padding: 10px 20px;
     font-size: 1em;
-    cursor: pointer;
-    background-color: #28a745;
-    color: white;
-    border: none;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
     border-radius: 5px;
+}
+
+#results {
+    text-align: left;
+}
+
+.vocab-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.vocab-item h3 {
+    margin: 0 0 5px 0;
+    color: #007bff;
+}
+
+.vocab-item p {
+    margin: 0;
+    color: #555;
 }
