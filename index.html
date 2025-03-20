@@ -3,46 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vokabeltrainer</title>
+    <title>Latein Wörterbuch</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="dark-mode">
     <!-- Navigationsleiste -->
     <nav class="navbar">
-        <div class="nav-buttons">
-            <button id="toggleDictionary">Wörterbuch</button>
-            <button id="toggleQuery">Abfrage</button>
-        </div>
         <button id="toggleDarkMode" class="dark-mode-toggle">🌞</button>
     </nav>
 
-    <!-- Container für die Abschnitte -->
+    <!-- Container für das Wörterbuch -->
     <div class="container">
-        <!-- Wörterbuch -->
-        <div id="dictionarySection" class="section">
-            <h2>Wörterbuch</h2>
-            <div class="input-group">
-                <input type="text" id="latinWord" placeholder="Lateinisches Wort">
-                <input type="text" id="stemForms" placeholder="Stammformen">
-                <input type="text" id="translations" placeholder="Übersetzungen">
-            </div>
-            <button id="saveWord">Vokabel speichern</button>
-            <input type="text" id="search" placeholder="Suche...">
-            <div id="vocabularyList"></div>
-        </div>
-
-        <!-- Abfrage -->
-        <div id="querySection" class="section hidden">
-            <h2>Abfrage</h2>
-            <div class="input-group">
-                <input type="text" id="queryLatinWord" placeholder="Lateinisches Wort" disabled>
-                <input type="text" id="queryStemForms" placeholder="Stammformen">
-                <input type="text" id="queryTranslations" placeholder="Übersetzungen">
-            </div>
-            <button id="checkAnswer">Antwort überprüfen</button>
-            <div id="result"></div>
-            <div id="score">Richtig: 0 | Falsch: 0</div>
-        </div>
+        <h1>Latein Wörterbuch</h1>
+        <input type="text" id="search" placeholder="Suche nach Vokabeln, Stammformen oder Übersetzungen...">
+        <div id="vocabularyList"></div>
     </div>
 
     <!-- Lokale Vokabeldatei -->
