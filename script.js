@@ -105,31 +105,54 @@ searchInput.addEventListener('input', () => {
 });
 
 // Vokabeln laden
+// Vokabeln laden
 async function loadVocabulary() {
+    // Vokabeln aus Supabase laden
     const { data, error } = await supabaseClient
         .from('vocabulary')
         .select('*');
+    
     if (error) {
         console.error('Fehler beim Laden der Vokabeln:', error);
         return;
     }
-    vocabulary = data;
+    
+    // Vokabeln aus der vocabulary.js Datei verarbeiten
+    const localVocabulary = window.vocabulary
+        .filter(item => item.latin) // Nur Einträge mit lateinischen Wörtern
+        .map(item => ({
+            latin: item.latin,
+            stem: item.stems || '',
+            translation: item.translation || '',
+            source: 'local' // Markierung für lokale Vokabeln
+        }));
+    
+    // Supabase-Vokabeln mit lokalen kombinieren
+    vocabulary = [
+        ...(data || []),
+        ...localVocabulary
+    ];
+    
     renderVocabulary(vocabulary);
 }
 
+// Vokabel speichern
 // Vokabel speichern
 async function saveWord() {
     const latin = latinWordInput.value.trim();
     const stem = stemFormsInput.value.trim();
     const translation = translationsInput.value.trim();
+    
     if (latin && stem && translation) {
         const { data, error } = await supabaseClient
             .from('vocabulary')
             .insert([{ latin, stem, translation }]);
+        
         if (error) {
             console.error('Fehler beim Speichern der Vokabel:', error);
             return;
         }
+        
         latinWordInput.value = '';
         stemFormsInput.value = '';
         translationsInput.value = '';
@@ -143,37 +166,55 @@ function renderVocabulary(filteredVocabulary = vocabulary) {
     filteredVocabulary.forEach((word) => {
         const item = document.createElement('div');
         item.className = 'vocabulary-item';
-        item.innerHTML = `
-            <span>${word.latin} - ${word.stem} - ${word.translation}</span>
+        
+        const sourceInfo = word.source === 'local' ? ' (lokal)' : '';
+        const actions = word.source === 'local' ? '' : `
             <div class="actions">
                 <button class="edit" onclick="editWord('${word.id}')">Bearbeiten</button>
                 <button onclick="deleteWord('${word.id}')">Löschen</button>
             </div>
+        `;
+        
+        item.innerHTML = `
+            <span>${word.latin} - ${word.stem} - ${word.translation}${sourceInfo}</span>
+            ${actions}
         `;
         vocabularyList.appendChild(item);
     });
 }
 
 // Vokabel bearbeiten
+// Vokabel bearbeiten
 async function editWord(id) {
-    const word = vocabulary.find((w) => w.id === id);
-    latinWordInput.value = word.latin;
-    stemFormsInput.value = word.stem;
-    translationsInput.value = word.translation;
-    await deleteWord(id);
+    // Nur bearbeiten, wenn es eine Supabase-Vokabel ist (id vorhanden)
+    if (id) {
+        const word = vocabulary.find((w) => w.id === id);
+        latinWordInput.value = word.latin;
+        stemFormsInput.value = word.stem;
+        translationsInput.value = word.translation;
+        await deleteWord(id);
+    } else {
+        alert('Lokale Vokabeln können nicht bearbeitet werden. Bitte als neue Vokabel speichern.');
+    }
 }
 
 // Vokabel löschen
 async function deleteWord(id) {
-    const { error } = await supabaseClient
-        .from('vocabulary')
-        .delete()
-        .eq('id', id);
-    if (error) {
-        console.error('Fehler beim Löschen der Vokabel:', error);
-        return;
+    // Nur löschen, wenn es eine Supabase-Vokabel ist (id vorhanden)
+    if (id) {
+        const { error } = await supabaseClient
+            .from('vocabulary')
+            .delete()
+            .eq('id', id);
+        
+        if (error) {
+            console.error('Fehler beim Löschen der Vokabel:', error);
+            return;
+        }
+        loadVocabulary();
+    } else {
+        alert('Lokale Vokabeln können nicht gelöscht werden.');
     }
-    loadVocabulary();
 }
 
 // Abfrage generieren
