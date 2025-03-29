@@ -15,6 +15,8 @@
             --search-border: #444;
             --test-bg: #2a2a2a;
             --test-card-bg: #252525;
+            --button-hover: #9a67cf;
+            --checkbox-color: #bb86fc;
         }
 
         [data-theme="light"] {
@@ -27,6 +29,8 @@
             --search-border: #ccc;
             --test-bg: #f0f0f0;
             --test-card-bg: #fff;
+            --button-hover: #7c4dff;
+            --checkbox-color: #6200ee;
         }
 
         body {
@@ -253,6 +257,7 @@
 
         .test-button:hover {
             opacity: 0.9;
+            background-color: var(--button-hover);
         }
 
         .test-button.secondary {
@@ -289,30 +294,134 @@
             min-width: 100px;
         }
 
-        .selection-controls {
-            display: flex;
-            flex-wrap: wrap;
+        /* New styles for lesson selection */
+        .selection-container {
+            display: none;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--card-border);
+        }
+
+        .selection-header {
+            color: var(--accent-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 10px;
             margin-bottom: 20px;
         }
 
+        /* Lesson Checkbox Styles */
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .lesson-checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
         .lesson-checkbox {
-            display: none;
+            position: absolute;
+            opacity: 0;
+            height: 0;
+            width: 0;
         }
 
         .lesson-checkbox-label {
-            padding: 8px 15px;
-            border-radius: 20px;
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
+            position: relative;
+            padding-left: 30px;
             cursor: pointer;
-            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            height: 40px;
+            transition: all 0.2s;
+            user-select: none;
         }
 
-        .lesson-checkbox:checked + .lesson-checkbox-label {
+        .lesson-checkbox-label:hover {
+            color: var(--accent-color);
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0;
+            height: 20px;
+            width: 20px;
+            background-color: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .lesson-checkbox-label:hover .checkmark {
+            border-color: var(--accent-color);
+        }
+
+        .lesson-checkbox:checked ~ .checkmark {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .lesson-checkbox:focus ~ .checkmark {
+            box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.3);
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .lesson-checkbox:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .selection-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .selection-button {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: none;
             background-color: var(--accent-color);
             color: white;
-            border-color: var(--accent-color);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .selection-button:hover {
+            background-color: var(--button-hover);
+            transform: translateY(-2px);
+        }
+
+        .selection-button.secondary {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--card-border);
         }
 
         @media (max-width: 768px) {
@@ -333,6 +442,14 @@
             .test-stats {
                 flex-direction: column;
                 gap: 10px;
+            }
+
+            .lesson-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+
+            .selection-buttons {
+                flex-direction: column;
             }
         }
     </style>
@@ -378,11 +495,16 @@
             </div>
         </div>
 
-        <div class="selection-controls" id="lessonSelection" style="display: none;">
-            <!-- Lesson checkboxes will be added here dynamically -->
-            <button id="selectAllBtn">Alle auswählen</button>
-            <button id="deselectAllBtn">Alle abwählen</button>
-            <button id="startSelectedTestBtn">Test mit ausgewählten Lektionen starten</button>
+        <div class="selection-container" id="lessonSelection">
+            <h2 class="selection-header">Lektionen auswählen</h2>
+            <div class="lesson-grid" id="lessonCheckboxes">
+                <!-- Lesson checkboxes will be added here dynamically -->
+            </div>
+            <div class="selection-buttons">
+                <button class="selection-button" id="selectAllBtn">Alle auswählen</button>
+                <button class="selection-button secondary" id="deselectAllBtn">Alle abwählen</button>
+                <button class="selection-button" id="startSelectedTestBtn">Test mit ausgewählten Lektionen starten</button>
+            </div>
         </div>
 
         <div class="vocab-grid" id="vocabGrid">
@@ -467,6 +589,7 @@
             const typeFilter = document.getElementById('typeFilter');
             const startTestBtn = document.getElementById('startTestBtn');
             const lessonSelection = document.getElementById('lessonSelection');
+            const lessonCheckboxes = document.getElementById('lessonCheckboxes');
             const selectAllBtn = document.getElementById('selectAllBtn');
             const deselectAllBtn = document.getElementById('deselectAllBtn');
             const startSelectedTestBtn = document.getElementById('startSelectedTestBtn');
@@ -500,7 +623,7 @@
             // Populate lesson filter and checkboxes
             function populateLessonControls() {
                 lessonFilter.innerHTML = '<option value="all">Alle Lektionen</option>';
-                lessonSelection.innerHTML = '';
+                lessonCheckboxes.innerHTML = '';
                 
                 lessons.forEach(lesson => {
                     // Add to lesson filter dropdown
@@ -511,29 +634,29 @@
                     
                     // Add to lesson checkboxes
                     const checkboxId = `lesson-${lesson}`;
-                    const checkboxWrapper = document.createElement('div');
+                    const checkboxContainer = document.createElement('div');
+                    checkboxContainer.className = 'lesson-checkbox-container';
                     
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
                     checkbox.id = checkboxId;
                     checkbox.className = 'lesson-checkbox';
                     checkbox.value = lesson;
-                    checkbox.checked = true;
+                    checkbox.checked = false;
                     
                     const label = document.createElement('label');
                     label.htmlFor = checkboxId;
                     label.className = 'lesson-checkbox-label';
                     label.textContent = `Lektion ${lesson}`;
                     
-                    checkboxWrapper.appendChild(checkbox);
-                    checkboxWrapper.appendChild(label);
-                    lessonSelection.appendChild(checkboxWrapper);
+                    const checkmark = document.createElement('span');
+                    checkmark.className = 'checkmark';
+                    
+                    label.prepend(checkmark);
+                    checkboxContainer.appendChild(checkbox);
+                    checkboxContainer.appendChild(label);
+                    lessonCheckboxes.appendChild(checkboxContainer);
                 });
-                
-                // Add control buttons after checkboxes
-                lessonSelection.appendChild(selectAllBtn);
-                lessonSelection.appendChild(deselectAllBtn);
-                lessonSelection.appendChild(startSelectedTestBtn);
             }
             
             // Function to determine word type
@@ -879,7 +1002,7 @@
             function exitTest() {
                 testContainer.style.display = 'none';
                 vocabGrid.style.display = 'grid';
-                lessonSelection.style.display = 'flex';
+                // Don't show lesson selection here - it will be shown when "Test starten" is clicked
             }
             
             // Event listeners
@@ -889,19 +1012,23 @@
             
             // Test mode event listeners
             startTestBtn.addEventListener('click', function() {
-                lessonSelection.style.display = 'flex';
+                lessonSelection.style.display = 'block';
                 vocabGrid.style.display = 'none';
             });
             
             selectAllBtn.addEventListener('click', function() {
                 document.querySelectorAll('.lesson-checkbox').forEach(checkbox => {
                     checkbox.checked = true;
+                    // Trigger visual update
+                    checkbox.dispatchEvent(new Event('change'));
                 });
             });
             
             deselectAllBtn.addEventListener('click', function() {
                 document.querySelectorAll('.lesson-checkbox').forEach(checkbox => {
                     checkbox.checked = false;
+                    // Trigger visual update
+                    checkbox.dispatchEvent(new Event('change'));
                 });
             });
             
@@ -946,6 +1073,18 @@
             // Initialize
             populateLessonControls();
             displayVocabulary();
+
+            // Update checkbox visuals on change
+            document.querySelectorAll('.lesson-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    const checkmark = this.nextElementSibling.querySelector('.checkmark');
+                    if (this.checked) {
+                        checkmark.style.backgroundColor = 'var(--accent-color)';
+                    } else {
+                        checkmark.style.backgroundColor = 'var(--card-bg)';
+                    }
+                });
+            });
         });
     </script>
 </body>
